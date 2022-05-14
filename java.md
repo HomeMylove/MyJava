@@ -4743,13 +4743,73 @@ public static void readFile01(){
             }
         }
     }
+
+public static void readFile02(){
+        String filePath = "E:\\hello.txt";
+        byte[] buf = new byte[8];
+        FileInputStream fileInputStream = null;
+        int len = 0;
+        try {
+//            创建 FileInputStream 对象，用于读取文件
+            fileInputStream = new FileInputStream(filePath);
+//            从该输入流读取一个字节的数据，如果没有输入可用，此方法将阻止
+//            如果返回 -1， 表示读取完毕
+            while ((len = fileInputStream.read(buf)) != -1){
+                System.out.println(new String(buf,0,len));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+//            关闭文件，释放资源
+            try {
+                fileInputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 ```
-
-
-
-
-
-
 
 2.BufferedInputStream:缓冲字节输入流
 3.ObjectInputStream:对象字节输入流
+
+#### OutputStream:字节输出流
+
+> FileOutputStream 文件字节输出流
+
+![OutputSream](java.assets/outputstream.png)
+
+
+
+```java
+//三种写入方法
+public void write(int b); // 写入一个字符
+public void write(byte[] b);  // 写入字符串
+public void write(byte[] b,int off,int len);  // 写入字符串，off 偏移量，len
+
+
+public static void writeFile(){
+//        创建 FileOutputStream 对象
+        String filePath = "E:\\a.txt";
+        FileOutputStream fileOutputStream = null;
+
+        try {
+//            1.new FileOutputStream(filePath) 创建方式，当写入内容时，会覆盖
+//            2.new FileOutputStream(filePath, true) 创建方式,当写入内容时，会追加到末尾
+           fileOutputStream =  new FileOutputStream(filePath,true);
+//           fileOutputStream.write('a');
+            String str = "Hello World";
+            fileOutputStream.write(str.getBytes());
+        }  catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fileOutputStream.close();
+            }catch (IOException e){
+                e.printStackTrace();
+            }
+        }
+
+    }
+```
+
