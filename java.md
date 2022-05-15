@@ -4813,3 +4813,334 @@ public static void writeFile(){
     }
 ```
 
+#### FileReader
+
+相关方法
+
+```java
+new FileReader(File/String);
+read: 读取单个字符，末尾返回-1
+read(char[]): 读取多个字符到数组，末尾返回-1
+```
+
+相关API
+
+```java
+new String(char[]):将char[]转换成 String
+new String(char[],off,len)
+```
+
+```java
+public static void main(String[] args) {
+
+        String filePath = "E:\\a.txt";
+        FileReader fileReader = null;
+        int len = 0;
+        char[] buf = new char[8];
+        try {
+            fileReader = new FileReader(filePath);
+//            while ((len = fileReader.read())!=-1){
+//                System.out.print((char)len);
+//            }
+            while ((len = fileReader.read(buf)) != -1) {
+                System.out.print(new String(buf, 0, len));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                fileReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+```
+
+
+
+#### FileWriter
+
+相关方法
+
+```java
+new FileWriter(File/String); 覆盖模式
+new FileWriter(File/String,true); 追加模式
+write(int);写入单个
+write(char[]); 写入数组
+write(char[],off,len); 指定
+write(string); 写入整个字符串
+write(string,off,len);
+```
+
+相关API
+
+```JAVA
+String类的 toCharArray:将 String 转换成 char[]
+```
+
+> 主要关闭(close)或刷新(flush),否则写入不到文件
+
+### 节点流 包装流
+
+1. 节点流可以从一个特定的数据源==读写数据==，如FileReader，FileWriter
+
+   ![节点流](java.assets/节点流.png)
+
+2. 处理流（“包装流”）是“连接”在已存在的流（节点流或处理流）之上，提供更强大的功能，如BufferedReader，BufferedWriter
+
+   ![处理流](java.assets/包装流.png)
+
+> BufferedReader 类中，有属性Reader。即可以封装一个节点流，可以是任意的，只要是Reader的子类
+
+```java
+public class BufferedReader extends Reader{
+    private Reader in;
+}
+```
+
+### 对象处理流
+
+>序列化和反序列化
+>
+>1. 序列化就是在保存数据时，保存数据的值和数据类型
+>
+>2. 反序列化就是在恢复数据时，恢复数据的值和数据类型
+>
+>3. 需要让某个对象支持序列化机制，则必须让其类是可序列化的，为了让某个类是可序列化的，该类必须实现如下两个接口之一：
+>   Serializable//这是一个标记接口
+>   Externalizable// 这里面有方法要实现，所以一般用上面的
+
+序列化
+
+```java
+public class ObjectOutputStream_ {
+    public static void main(String[] args) throws IOException {
+        String filePath = "E:\\data.dat";
+
+        ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filePath));
+        oos.write(100);
+        oos.writeBoolean(true);
+        oos.writeByte('a');
+        oos.writeDouble(100.1);
+        oos.writeUTF("窗前明月光");
+        oos.writeObject(new Dog("旺财",10));
+        oos.close();
+        System.out.println("保存成功");
+    }
+}
+// Dog 实现了 Serializable 接口
+class Dog implements Serializable{
+    private String name;
+    private int age = 1;
+
+    public Dog(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+}
+```
+
+反序列化（读取）
+
+```java
+public class ObjectInputStream_ {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        String filePath = "E:\\data.dat";
+
+        ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filePath));
+
+//        读取
+//        读取(反序列化)的顺序应该和保存时一致，否则会异常
+        System.out.println(ois.readInt());
+        System.out.println(ois.readBoolean());
+        System.out.println(ois.readByte());
+        System.out.println(ois.readDouble());
+        System.out.println(ois.readUTF());
+        System.out.println(ois.readObject());
+        
+        
+        ois.close();
+    }
+}
+```
+
+对象处理流注意
+
+> 1)读写顺序要一致
+> 2)要求实现序列化或反序列化对像，需要实现Serializable
+> 3)序列化的类中建议添加SerialVersionUID,为了提高版本的兼容性
+> 4)序列化对像时，默认将里面所有属性都进行序列化，但除了static或transient修饰的成员
+> 5)序列化对像时，要求里面属性的类型也需要实现序列化接口
+> 6)序列化具备可继承性，也就是如果某类已经实现了序列化，则它的所有子类也已经默认实
+> 现了序列化
+
+### 标准输入输出流
+
+|                    | 类型        | 默认设备 |
+| ------------------ | ----------- | -------- |
+| System.in标准输入  | InputStream | 键盘     |
+| System.out标准输出 | PrintStream | 显示器   |
+
+```java
+public final class System{
+    public static final InputStream in = null;
+    public static final PrintStream out = null;
+}
+```
+
+### 转换流
+
+InputStreamReader 和 OutputStreamWriter
+
+> 1.InputStreamReader:Readert的子类，可以将InputStream(字节流)包装成Reader(字符流)
+> 2.OutputStreamWriter:Writerl的子类，实现将OutputStream(字节流)包装成Writer(字符流)
+> 3.当处理纯文本数据时，如果使用字符流效率更高，并且可以有效解决中文问题，所以建议将字节流转换成字符流
+> 4.可以在使用时指定编码格式（比如utf-8,gbk,gb2312,ISO8859-1等）
+
+```java
+// InputStreamReader
+public static void main(String[] args) {
+        String filePath = "E:\\note2.txt";
+        BufferedReader bufferedReader = null;
+
+        try {
+            InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(filePath), "gbk");
+            bufferedReader = new BufferedReader(inputStreamReader);
+
+            String line;
+            while ((line = bufferedReader.readLine()) != null) {
+                System.out.println(line);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                if (bufferedReader != null)
+                    bufferedReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+```
+
+```java
+public InputStreamReader(InputStream in,String charsetName);
+```
+
+> 就是把 InputSteam ==字节流==转换成了 InputStreamReader ==字符流==
+
+```java
+// OutputStreamWriter
+public static void main(String[] args) {
+        String filePath = "E:\\poem.txt";
+        BufferedWriter bufferedWriter = null;
+
+        try {
+            OutputStreamWriter outputStreamWriter = new OutputStreamWriter(new FileOutputStream(filePath), "gbk");
+            bufferedWriter = new BufferedWriter(outputStreamWriter);
+            String words = "为了你~我变成狼人模样";
+            bufferedWriter.write(words);
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (bufferedWriter != null) {
+                try {
+                    bufferedWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+```
+
+### 打印流
+
+> PrintStream
+
+![打印流](java.assets/打印流.png)
+
+System.out 就是一个PrintStream
+
+```java
+public static final PrintStream out = null;
+```
+
+```java
+public static void main(String[] args) throws FileNotFoundException {
+        PrintStream printStream = System.out;
+        printStream.println("正常打印");
+        System.setOut(new PrintStream("E:\\print.txt"));
+        printStream = new PrintStream("E:\\print2.txt");
+        printStream.println("猜猜打印到哪里去了^_^");
+        System.out.println("猜猜打印到哪里去了");
+    	printStream.close();
+    }
+
+// PrintStream(String fileName);  设置打印位置
+// out 是 System 类的属性
+// 可以通过 System.setOut 设置 System.out 的打印位置
+```
+
+> PrintWriter
+
+![print](java.assets/PrintWriter.png)
+
+```java
+public static void main(String[] args) throws IOException {
+        PrintWriter printWriter = new PrintWriter(new FileWriter("E:\\writer.txt"));
+        printWriter.print("我是PrintWriter");
+        printWriter.close();
+    // 如果不close 不会写入
+    }
+```
+
+#### Properties
+
+常见方法
+
+> Ioad:加载配置文件的键值对到Properties对象
+> list:将数据显示到指定设备
+> getProperty(key):根据键获取值
+> setProperty(key,value):设置键值对到Properties对像
+> store:将Propertiest中的键值对存储到配置文件，在idea中，保存信息到配置文件，如果
+> 含有中文，会存储为unicode码
+
+读取 Properties 文件
+
+```java
+public static void main(String[] args) {
+        String fileName = "mysql.properties";
+        String filePath = Properties01.class.getClassLoader().getResource(fileName).getPath();
+
+        Properties properties = new Properties();
+        try {
+            properties.load(new FileReader(filePath));
+            System.out.println(properties.getProperty("password"));
+            // getProperty(String key); 通过键获取值
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+```
+
+写入或修改配置文件
+
+```java
+public static void main(String[] args) {
+        Properties properties = new Properties();
+
+        try {
+            properties.load(new FileReader("E:\\config.properties"));
+            properties.setProperty("gender","male");
+            properties.setProperty("pwd","1234567890");
+            properties.store(new FileWriter("E:\\new-config.properties"),"new config");
+            System.out.println("修改成功");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+```
+
