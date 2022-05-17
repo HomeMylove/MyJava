@@ -1,4 +1,6 @@
-# java 网络编程
+# java 第三阶段
+
+## 网络编程
 
 ### 相关概念
 
@@ -34,27 +36,29 @@
 4. 获取InetAddress对象的地t址getHostAddress
 
 ```java
-public static void main(String[] args) throws UnknownHostException {
+public class UseInetAddress{
+   public static void main(String[] args) throws UnknownHostException {
 //        获取本机的 InetAddress 对象
-        InetAddress localHost = InetAddress.getLocalHost();
-        System.out.println(localHost);
+      InetAddress localHost = InetAddress.getLocalHost();
+      System.out.println(localHost);
 
 //        根据指定主机名，获取 InetAddress 对象
-        InetAddress byName = InetAddress.getByName("DESKTOP-I9EJ2FT");
-        System.out.println("host1="+byName);
+      InetAddress byName = InetAddress.getByName("DESKTOP-I9EJ2FT");
+      System.out.println("host1="+byName);
 
 //        根据指定域名，获取 InetAddress 对象
-        InetAddress byName1 = InetAddress.getByName("www.baidu.com");
-        System.out.println("baidu="+byName1);
+      InetAddress byName1 = InetAddress.getByName("www.baidu.com");
+      System.out.println("baidu="+byName1);
 
 //      根据 InetAddress 对象，获取 ip 地址
-        String hostAddress = byName1.getHostAddress();
-        System.out.println("hostAddress="+hostAddress);
+      String hostAddress = byName1.getHostAddress();
+      System.out.println("hostAddress="+hostAddress);
 
 //        获取主机名
-        String hostName = byName1.getHostName();
-        System.out.println("hostName="+hostName);
-    }
+      String hostName = byName1.getHostName();
+      System.out.println("hostName="+hostName);
+   }
+}
 ```
 
 ### Socket 套接字
