@@ -1,7 +1,7 @@
-package com.neta.qqclient.view;
+package com.test.qqclient.view;
 
-import com.neta.qqclient.service.UserClientService;
-import com.neta.qqclient.utils.Utility;
+import com.test.qqclient.service.UserClientService;
+import com.test.qqclient.utils.Utility;
 
 /**
  * 客户端界面
@@ -55,10 +55,10 @@ public class QQView {
                                     break;
                                 case "3":
                                     System.out.print("请输入想聊天的用户:");
-                                    String sendTo = com.test.qqclient.utils.Utility.readString(50);
+                                    String sendTo = Utility.readString(50);
                                     System.out.print("请输入想说的话:");
-                                    String msg = com.test.qqclient.utils.Utility.readString(50);
-
+                                    String msg = Utility.readString(50);
+                                    userClientService.sendPrivateMessage(sendTo,msg);
                                     break;
                                 case "4":
                                     System.out.println("显示在线用户列表");

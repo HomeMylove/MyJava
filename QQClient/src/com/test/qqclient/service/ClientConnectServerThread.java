@@ -1,9 +1,8 @@
-package com.neta.qqclient.service;
+package com.test.qqclient.service;
 
-import com.neta.qqcommon.Message;
-import com.neta.qqcommon.MessageType;
+import com.test.qqcommon.Message;
+import com.test.qqcommon.MessageType;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.net.Socket;
 
@@ -33,8 +32,11 @@ public class ClientConnectServerThread extends Thread{
                     for(int i = 0; i < onlineFriends.length; i++){
                         System.out.println("用户: "+onlineFriends[i]);
                     }
-
-
+                }else if(message.getMsgType().equals(MessageType.MESSAGE_COMM_MES)){
+//                    私聊信息
+                    System.out.println(message.getSender() + " 对你说:" + message.getContent());
+                }else if(message.getMsgType().equals(MessageType.MESSAGE_WARNING)){
+                    System.out.println("警告:"+message.getContent());
                 }
 
             } catch (Exception e) {

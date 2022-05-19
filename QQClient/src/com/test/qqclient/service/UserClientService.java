@@ -1,8 +1,8 @@
-package com.neta.qqclient.service;
+package com.test.qqclient.service;
 
-import com.neta.qqcommon.Message;
-import com.neta.qqcommon.MessageType;
-import com.neta.qqcommon.User;
+import com.test.qqcommon.Message;
+import com.test.qqcommon.MessageType;
+import com.test.qqcommon.User;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -90,6 +90,25 @@ public class UserClientService {
 
             System.exit(0);
 
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+//    发送私聊消息
+    public void sendPrivateMessage(String userId,String msg){
+//        创建消息
+        Message message = new Message();
+        message.setSender(u.getUserId());  // 发送者
+        message.setGetter(userId);   // 接受者
+        message.setContent(msg);
+        message.setMsgType(MessageType.MESSAGE_COMM_MES);
+
+        socket = ManageClientConnectServerThread.getClientConnectServerThread(u.getUserId()).getSocket();
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+            oos.writeObject(message);
+            System.out.println("你 对 "+userId + "说: "+msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
