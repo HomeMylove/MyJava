@@ -7,6 +7,9 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Collection;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * 该类的一个对象和某个客户端保持通信
@@ -14,6 +17,10 @@ import java.net.Socket;
 public class ServerConnectClientThread extends Thread{
     private final Socket socket;
     private final String userId;// 连接到客户端的 userId
+
+    public Socket getSocket() {
+        return socket;
+    }
 
     public ServerConnectClientThread(Socket socket, String userId) {
         this.socket = socket;
@@ -39,7 +46,33 @@ public class ServerConnectClientThread extends Thread{
                     message1.setContent(onlineUser);
                     message1.setGetter(message.getSender());
                     oos.writeObject(message1);
-                }else if(message.getMsgType().equals(MessageType.MESSAGE_CLIENT_EX)){
+                }else if(message.getMsgType().equals(MessageType.MESSAGE_COMM_MES)){
+//                    根据message获取getter
+                    ServerConnectClientThread clientThread = ManageClientsThread.getClientThread(message.getGetter());
+                    if(clientThread == null){
+                        ManageClientsThread.addOfflineMessage(message.getGetter(),message);
+                    }else{
+                        oos = new ObjectOutputStream(clientThread.getSocket().getOutputStream());
+                        oos.writeObject(message); // 如果不在线可以保存到数据库,实现离线留言
+                    }
+                }else if(message.getMsgType().equals(MessageType.MESSAGE_TOALL_MES)){
+//                    转发群发消息
+                    message.setMsgType(MessageType.MESSAGE_COMM_MES);
+                    Set<Map.Entry<String, ServerConnectClientThread>> otherOnlineSocket = ManageClientsThread.getOtherOnlineSocket();
+                    for (Map.Entry<String, ServerConnectClientThread> onlineSocket : otherOnlineSocket) {
+                        if(!onlineSocket.getKey().equals(message.getSender())){
+                            oos = new ObjectOutputStream(onlineSocket.getValue().getSocket().getOutputStream());
+                            oos.writeObject(message);
+                        }
+                    }
+                }else if(message.getMsgType().equals(MessageType.MESSAGE_FILE_MES)){
+//                    转发文件
+                    Socket socket = ManageClientsThread.getClientThread(message.getGetter()).getSocket();
+                     oos = new ObjectOutputStream(socket.getOutputStream());
+                     oos.writeObject(message);
+                }
+
+                else if(message.getMsgType().equals(MessageType.MESSAGE_CLIENT_EX)){
 //                    关闭连接
                     System.out.println(message.getSender()+"退出");
                     sleep(1);

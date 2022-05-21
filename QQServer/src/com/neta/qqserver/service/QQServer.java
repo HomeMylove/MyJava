@@ -62,8 +62,20 @@ public class QQServer {
                     message.setMsgType(MessageType.MESSAGE_LOGIN_SUCCEED);
                     oos.writeObject(message);
 //                    创建一个线程和客户端保持通信
+                    //                    尝试获取离线消息
+
+                    Message offlineMessage = ManageClientsThread.getOfflineMessage(user.getUserId());
+                    if(offlineMessage != null){
+                        System.out.println("发送"+offlineMessage.getContent());
+                        Message s = new Message();
+                        s.setContent("123");
+                        s.setMsgType(MessageType.MESSAGE_COMM_MES);
+                        oos.writeObject(s);
+                    }
                     ServerConnectClientThread serverConnectClientThread = new ServerConnectClientThread(socket, user.getUserId());
                     serverConnectClientThread.start();
+
+
 
                     ManageClientsThread.addClientThread(user.getUserId(), serverConnectClientThread);
                 } else {

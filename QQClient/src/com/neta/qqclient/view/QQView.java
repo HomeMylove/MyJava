@@ -1,5 +1,7 @@
 package com.neta.qqclient.view;
 
+import com.neta.qqclient.service.FileClientService;
+import com.neta.qqclient.service.MessageClientService;
 import com.neta.qqclient.service.UserClientService;
 import com.neta.qqclient.utils.Utility;
 
@@ -14,6 +16,8 @@ public class QQView {
     private boolean loop = true; // 默认显示主菜单
     private String key = ""; // 获取用户输入
     private final UserClientService userClientService = new UserClientService();  // 用于登录/注册
+    private final MessageClientService messageClientService = new MessageClientService();
+    private final FileClientService fileClientService = new FileClientService();
     // 显示主菜单
     private void mainMenu(){
 
@@ -51,17 +55,25 @@ public class QQView {
                                     userClientService.olineFriendList();
                                     break;
                                 case "2":
-                                    System.out.println("显示在线用户列表");
+                                    System.out.print("请输入想对大家说的话:");
+                                    String word = Utility.readString(50);
+                                    messageClientService.sendMessageToAll(word,userId);
                                     break;
                                 case "3":
                                     System.out.print("请输入想聊天的用户:");
                                     String sendTo = com.test.qqclient.utils.Utility.readString(50);
                                     System.out.print("请输入想说的话:");
                                     String msg = com.test.qqclient.utils.Utility.readString(50);
-
+                                    messageClientService.sendMessageToOne(msg,userId,sendTo);
                                     break;
                                 case "4":
-                                    System.out.println("显示在线用户列表");
+                                    System.out.print("要发给谁:");
+                                    String getter = Utility.readString(50);
+                                    System.out.print("源文件");
+                                    String src = Utility.readString(50);
+                                    System.out.print("目标");
+                                    String dest = Utility.readString(50);
+                                    fileClientService.sendFileToOne(src,dest,userId,getter);
                                     break;
                                 case "9":
                                     userClientService.logout();

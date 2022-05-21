@@ -3,8 +3,7 @@ package com.neta.qqclient.service;
 import com.neta.qqcommon.Message;
 import com.neta.qqcommon.MessageType;
 
-import java.io.IOException;
-import java.io.ObjectInputStream;
+import java.io.*;
 import java.net.Socket;
 
 public class ClientConnectServerThread extends Thread{
@@ -33,7 +32,15 @@ public class ClientConnectServerThread extends Thread{
                     for(int i = 0; i < onlineFriends.length; i++){
                         System.out.println("用户: "+onlineFriends[i]);
                     }
-
+                }else if(message.getMsgType().equals(MessageType.MESSAGE_COMM_MES)){
+//                    普通的聊天消息
+                    System.out.println("\n" + message.getSender()+" 对你说:"+message.getContent());
+                }else if(message.getMsgType().equals(MessageType.MESSAGE_FILE_MES)){
+//                    文件消息
+                    System.out.println("\n"+message.getSender() + " 给你发送了" + message.getSrc());
+                    BufferedOutputStream bos = new BufferedOutputStream(new FileOutputStream(message.getDest()));
+                    bos.write(message.getFileBytes());
+                    bos.close();
 
                 }
 

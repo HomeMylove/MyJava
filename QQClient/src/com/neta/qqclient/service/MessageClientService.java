@@ -29,4 +29,21 @@ public class MessageClientService {
 
     }
 
+    public void sendMessageToAll(String content,String sendId){
+        Message message = new Message();
+        message.setSender(sendId);
+        message.setMsgType(MessageType.MESSAGE_TOALL_MES);
+        message.setContent(content);
+        message.setSendTime(new Date().toString());
+        System.out.println(sendId + " 对大家说:" + content);
+
+        try {
+            ObjectOutputStream oos = new ObjectOutputStream(ManageClientConnectServerThread.getClientConnectServerThread(sendId).getSocket().getOutputStream());
+            oos.writeObject(message);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+    }
 }
