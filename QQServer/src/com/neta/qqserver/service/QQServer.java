@@ -9,6 +9,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
@@ -64,13 +65,13 @@ public class QQServer {
 //                    创建一个线程和客户端保持通信
                     //                    尝试获取离线消息
 
-                    Message offlineMessage = ManageClientsThread.getOfflineMessage(user.getUserId());
+                    ArrayList<Message> offlineMessage = ManageClientsThread.getOfflineMessage(user.getUserId());
                     if(offlineMessage != null){
-                        System.out.println("发送"+offlineMessage.getContent());
-                        Message s = new Message();
-                        s.setContent("123");
-                        s.setMsgType(MessageType.MESSAGE_COMM_MES);
-                        oos.writeObject(s);
+                        for(int i = 0; i < offlineMessage.size(); i++){
+                            message = offlineMessage.get(i);
+                            ObjectOutputStream oos1 = new ObjectOutputStream(socket.getOutputStream());
+                            oos1.writeObject(message);
+                        }
                     }
                     ServerConnectClientThread serverConnectClientThread = new ServerConnectClientThread(socket, user.getUserId());
                     serverConnectClientThread.start();

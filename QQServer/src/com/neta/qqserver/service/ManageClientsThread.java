@@ -3,6 +3,7 @@ package com.neta.qqserver.service;
 
 import com.neta.qqcommon.Message;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -14,13 +15,18 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ManageClientsThread {
     private static final HashMap<String,ServerConnectClientThread> hm = new HashMap<>();
 
-    private static final ConcurrentHashMap<String, Message> chm = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<String, ArrayList<Message>> chm = new ConcurrentHashMap<>();
 
     public static void addOfflineMessage(String getterId,Message message){
-        chm.put(getterId,message);
+        if(chm.get(getterId) == null){
+            ArrayList<Message> messageArrayList = new ArrayList<>();
+            chm.put(getterId,messageArrayList);
+        }
+        ArrayList<Message> messageArrayList = chm.get(getterId);
+        messageArrayList.add(message);
     }
 
-    public static Message getOfflineMessage(String getterId){
+    public static ArrayList<Message> getOfflineMessage(String getterId){
         return chm.get(getterId);
     }
 
