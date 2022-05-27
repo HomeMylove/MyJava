@@ -10,6 +10,7 @@ public class API_ {
         InetAddress localHost = InetAddress.getLocalHost();
         System.out.println(localHost);
 
+
 //        根据指定主机名，获取 InetAddress 对象
         InetAddress byName = InetAddress.getByName("DESKTOP-I9EJ2FT");
         System.out.println("host1="+byName);

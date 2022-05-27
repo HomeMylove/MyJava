@@ -298,3 +298,10 @@ public class UDPReceiverB {
 
 https://www.bilibili.com/video/BV1fh411y7R8?p=712&spm_id_from=pageDriver
 
+1.反射机制允许程序在执行期借助于ReflectionAPI取得任何类的内部信息（比如成员变量，构
+造器，成员方法等等)，并能操作对象的属性及方法。反射在设计模式和框架底层都会用到
+2.加载完类之后，在堆中就产生了一个Class类型的对像（==一个类只有一个Class对象==），这个对象包含了类的完整结构信息。通过这个对象得到类的结构。这个对象就像一面镜子，透过这个镜子看到类的结构，所以，形象的称之为：==反射==
+
+原理图
+
+![reflection](java2.assets/reflection.png)
