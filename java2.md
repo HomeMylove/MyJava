@@ -602,7 +602,7 @@ String sql3 = "delete from admin where user=?"
     </tr>
 </table>
 
- 
+
 
 ### 事务
 
@@ -802,10 +802,405 @@ connection.close();
 driverClassName=com.mysql.cj.jdbc.Driver
 url=jdbc:mysql://localhost:3306/exercise?rewriteBatchedStatements=true
 username=root
-password=passwo
+password=password
 initialSize=10
 minIdle=5
 maxActive=20
 maxWait=5000
+```
+
+#### apache-dbutils
+
+下载 .jar 包
+
+https://commons.apache.org/proper/commons-dbutils/download_dbutils.cgi
+
+查询多条数据
+
+```java
+// get connection
+
+// 使用 dbutils 类
+QueryRunner queryRunner = new QueryRunner();
+String sql = "SELECT * FROM news WHERE id > ?";
+
+// 执行 query 方法，返回结果集
+// 通过反射看有哪些属性
+// BeanListHandler 返回一个List
+List<Actor> list = queryRunner.query(connection, sql, new BeanListHandler<>(Actor.class),1);
+```
+
+查询单条数据
+
+```java
+// get connection
+
+// 使用 dbutils 类
+QueryRunner queryRunner = new QueryRunner();
+String sql = "SELECT * FROM news WHERE id = ?";
+
+// 执行 query 方法，返回结果集
+// 通过反射看有哪些属性
+// BeanHandler 返回一个 Actor
+Actor actor = queryRunner.query(connection, sql, new BeanHandler<>(Actor.class), 1);
+```
+
+返回单行单列
+
+```java
+// get connection
+
+QueryRunner queryRunner = new QueryRunner();
+String sql = "SELECT content FROM news WHERE id = ?";
+
+// 使用 ScalarHandler 包装成一个对象
+Object obj = queryRunner.query(connection, sql, new ScalarHandler<>(), 1);
+```
+
+dml 操作
+
+```java
+// get connection
+
+QueryRunner queryRunner = new QueryRunner();
+String sql = "UPDATE news SET content = ? WHERE id = ?";
+
+// rows 受影响的行数
+int rows = queryRunner.update(connection, sql, "Keqing", 2);
+
+sql = "INSERT INTO news VALUES(null,?)";
+rows = queryRunner.update(connection, sql, "Ayaka");
+```
+
+
+
+
+
+---
+
+## 正则
+
+### 基本操作
+
+````java
+String content = "1998年有1234个人";
+
+String regStr = "\\d\\d\\d\\d";
+
+Pattern pattern = Pattern.compile(regStr);
+
+Matcher matcher = pattern.matcher(content);
+// 根据指定的规则去匹配字符串
+
+while (matcher.find())
+    System.out.println("找到:"+matcher.group(0));
+}
+
+// 1998
+// 1234
+````
+
+### 分组
+
+matcher.group(0)  匹配到的子字符串
+
+matcher.group(1)  匹配到的子字符串的第一组
+
+matcher.group(2)  匹配到的子字符串的第二组
+
+[【零基础 快速学Java】韩顺平 零基础30天学会Java_哔哩哔哩_bilibili](https://www.bilibili.com/video/BV1fh411y7R8?p=885)
+
+### 元字符
+
+#### 字符匹配符
+
+| 符号 | 符号                            | 示例    | 解释                                      |
+| ---- | ------------------------------- | ------- | ----------------------------------------- |
+| []   | 可接收的字符列表                | [abcd]  | a,b,c,d中的任意字符                       |
+| [^]  | 不接受的字符列表                | [^abcd] | 除a,b,c,d之外的任意字符                   |
+| -    | 连字符                          | A-Z     | 任意单个大写字母                          |
+| .    | 匹配除\n以外的任何字符          | a..b    | 以a开头，中间包括2个字符，以b结尾的字符串 |
+| \\\d | 单个数字，[0-9]                 |         |                                           |
+| \\\D | 单个非数字，[\^0-9]             |         |                                           |
+| \\\w | 单个数字、字母，[0-9a-zA-Z]     |         |                                           |
+| \\\W | 单个非数字、非字母[\^0-9a-zA-Z] |         |                                           |
+
+<b>不区分大小写</b>
+
+- (?i)abc 表示abc都不区分大小写
+- a(?i)bc 表示bc不区分大小写
+- a((?i)b)c 表示只有b不区分大小写
+- Pattern pat = Pattern.conpile(regEx, Pattern.CASE_INSENSITIVE);
+
+
+
+#### 选择匹配符
+
+| 符号 | 符号                         | 实例     | 解释       |
+| ---- | ---------------------------- | -------- | ---------- |
+| \|   | 匹配 "\|" 之前或之后的表达式 | ab \| cd | ab 或者 cd |
+
+
+
+#### 限定符
+
+用于指定前面的字符和组合项连续出现了多少次
+
+| 符号  | 含义             | 示例        | 解释                              |
+| ----- | ---------------- | ----------- | --------------------------------- |
+| *     | 0次或多次        | (abc)*      | 任意个abc                         |
+| +     | 1次或多次        |             |                                   |
+| ?     | 0次或1次         |             |                                   |
+| {n}   | n个字符          | [abcd]{3}   | 3个由abcd中的字母组成的字符串     |
+| {n,}  | 至少n个字符      | [abcd]{3,}  | 至少3个由abcd中的字母组成的字符串 |
+| {n,m} | 至少n个，至多m个 | [abcd]{3,6} | 3到6个由abcd中的字母组成的字符串  |
+
+<b style="background-color:red">尽可能匹配多的</b>
+
+```java
+Pattern pattern = Pattern.compile("a{3,4}");  // 会优先匹配四个a
+```
+
+
+
+#### 定位符
+
+规定要匹配的字符串出现的位置，比如在字符串的开始还是结束的位置
+
+
+
+| 符号 | 含义         | 示例     | 解释               | 匹配                                                  |
+| ---- | ------------ | -------- | ------------------ | ----------------------------------------------------- |
+| ^    | 起始字符     | ^[0-9]+  | 以至少一个数字开头 | 12a                                                   |
+| $    | 结束字符     | ly$      | 以 ly 结尾         | lovely                                                |
+| \\\b | 字符串边界   | home\\\b | 子字符串中间的空格 | <span style="color:red">home</span> work<br/>homework |
+| \\\B | 字符串非边界 | home\\\B | 和 \\\b 相反       | home work<br/><span style="color:red">home</span>work |
+
+### 分组
+
+#### 捕获分组
+
+| 常用分组构造形式   | 说明                                                         |
+| ------------------ | ------------------------------------------------------------ |
+| (pattern)          | 非命名捕获。捕获匹配的子字符串。编号为零的第一个捕获是由整个正则表达式模式匹配的文本，其它捕获结果则根据左括号的顺序从1开始自动编 号。 |
+| (？\<name>pattern) | 命名捕获。将匹配的子字符串捕获到一个组名称回或编号名称中。用于name的字符串不能包含任何标点符号，并且不能以数字开头。可以使用单引号替代尖括号，例如(？'name') |
+
+
+
+演示
+
+<b>非命名捕获</b>
+
+```java
+public class Group01 {
+    public static void main(String[] args) {
+        String content = "20220612";
+
+        String regStr01 = "(\\d{4})(\\d{2})(\\d{2})";
+        Pattern pattern1 = Pattern.compile(regStr01);
+        Matcher matcher1 = pattern1.matcher(content);
+
+        while (matcher1.find()){
+            System.out.println("全部:"+matcher1.group(0));
+            
+            // public String group(int group)
+            System.out.println("年:"+matcher1.group(1));
+            System.out.println("月:"+matcher1.group(2));
+            System.out.println("日:"+matcher1.group(3));
+        }
+    }
+}
+```
+
+<b>命名捕获</b>
+
+```java
+public class Group02 {
+    public static void main(String[] args) {
+        String content = "20220612";
+		
+        String regStr02 = "(?<year>\\d{4})(?<month>\\d{2})(?<day>\\d{2})";
+        Pattern pattern2 = Pattern.compile(regStr02);
+        Matcher matcher2 = pattern2.matcher(content);
+
+        while (matcher2.find()){
+            System.out.println("全部:"+matcher2.group(0));
+            
+            // 重载了group方法
+            // public String group(String name)
+            System.out.println("年:"+matcher2.group("year"));
+            System.out.println("月:"+matcher2.group("month"));
+            System.out.println("日:"+matcher2.group("day"));
+        }
+    }
+}
+```
+
+
+
+#### 特别分组
+
+| 常用分组构造形式 | 说明                                                         |
+| ---------------- | ------------------------------------------------------------ |
+| (?:pattern)      | 匹配pattern但不捕获该匹配的子表达式，即它是一个非捕获匹配，不存储供以后使用的匹配。这对于用"or"字符(\|)组合模式部件的情况很有用。例如，'industr(?:y \| ies)是比'industry \|  industries'更经济的表达式。 |
+| (?=pattern)      | 它是一个非捕获匹配。例如，"Windows(?=95\|98\|NT\|2000)"匹配"Windows2000"中的"Windows'",但不匹配"Windows3.1"中的"Windows"。 |
+| (?!pattern)      | 该表达式匹配不处于匹配pattern的字符串的起始点的搜索字符串。它是一个非捕获匹配。例如，'Windows(?!95\|98\|NT\|2000)'匹配"Windows3.1"中的"Windows'",但不匹配"Windows2000"中的 "Vindows"。 |
+
+> 小结
+>
+> (?:pattern) pattern 会出现在结果里
+>
+> (?=pattern) pattern 不会出现在结果里
+
+
+
+### 非贪婪匹配
+
+当此字符紧随任何其他限定符(*、+、？、{n}、{n,}{n,m})之后时，匹配模式是"非贪心的”。"非贪心的"模式匹配搜索到的、尽可能短的字符串，而默认的"贪心的"模式匹配搜索到的、尽可能长的字符串。例如
+
+```java
+String content = "hello world";
+
+String regStr = "h.*l";  // 匹配 hello worl
+
+String regStr1 = "h.*?l"; // hell
+```
+
+
+
+
+
+### 应用
+
+1. 汉字范围
+
+   ```java
+   String regStr = "^[\u0391-\uffe5]+$";
+   ```
+
+2. 邮政编码
+
+   ```java
+   String regStr = "^[1-9]\\d{5}$";
+   ```
+
+3. QQ号码 (1-9开头，5-10位数)
+
+   ```java
+   String regStr = "^[1-9]\\d{4,9}$";
+   ```
+
+4. 手机号码 (13,14,15,18开头的11位数)
+
+   ```java
+   String regStr = "^1[3458]\\d{9}$";
+   ```
+
+5. URL
+
+   ```java
+   String content = "https://www.bilibili.com/video/BV1fh411y7R8?p=894&vd_source=17062b62acee4b91ff70868d97afb2ca";
+   
+   /**
+    * 思路
+    * 1. 先确定协议 http:// | https://
+    * 2. 域名 ([\\w-]+\\.)+[\\w-]+
+    *      www.bilibili. + com
+    * 3. 参数 (\/[\w-?=&/%.#]*)? 可能有也可能没有
+    *   注意 写在[]里的 . * ? 代表真正的字符
+    */
+   
+   String regStr = "^((http|https)://)([\\w-]+\\.)+[\\w-]+(\\/[\\w-?=&/%.#]*)?";
+   
+   Pattern compile = Pattern.compile(regStr);
+   
+   Matcher matcher = compile.matcher(content);
+   
+   while (matcher.find())
+       System.out.println(matcher.group(0));
+   ```
+
+   
+
+### 正则类
+
+#### Pattern类
+pattern对像是一个正则表达式对像。Pattern类没有公共构造方法。要创建一个Pattern对象，调用其公共静态方法，它返回一个Pattern对象。该方法接受一个正则表达式作为它的第一个参数
+
+```java
+Pattern pattern = Pattern.compile(pattern);
+```
+
+matches 方法 验证<b>整体</b>是否满足规则,返回布尔值
+
+```java
+public static boolean matches(String regex, CharSequence input);
+```
+
+
+
+#### Matcher类
+Matcher对象是对输入字符串进行解释和匹配的引擎。与Pattern类一样，Matcher也没有公共构造方法。你需要调用Pattern对象的matcher方法来获得一个Matcher对象
+
+
+
+#### PatternSyntaxException
+PatternSyntaxException是一个非强制异常类，它表示一个正则表达式模式中的语法错误。
+
+
+
+### 反向引用
+
+1. 分组
+   我们可以用圆括号组成一个比较复杂的匹配模式，那么一个圆括号的部分我们可以看作是一个子表达式/一个分组。
+
+2. 捕获
+   把正则表达式中子表达式/分组匹配的内容，保存到内存中以数字编号或显式命名的组里，方便后面引用，从左向右，以分组的左括号为标志，第一个出现的分组的组号为1，第二个为2，以此类推。组0代表的是整个正则式
+
+3. 反向引用
+   圆括号的内容被捕获后，可以在这个括号后被使用，从而写出一个比较实用的匹配模式，这个我们称为反向引用，这种引用既可以是在正则表达式内部，也可以是在正则表达式外部，内部反向引用\\\分组号，外部反向引用$分组号
+
+举例
+
+```java
+//匹配2个连续相同的数字
+String regStr1 = "(\\d)\\1";
+
+// 匹配5个连续相同的数字
+String regStr2 = "(\\d)\\1{4}";
+
+// 匹配四个数字,1和4位相同，2和3位相同
+String regStr3 = "(\\d)(\\d)\\2\\1";
+```
+
+
+
+案例
+
+```java
+// 结巴去重
+String content = "我...我要...要要要学..学学学...java";
+
+// 去除 ...
+content = Pattern.compile("\\.").matcher(content).replaceAll("");
+
+// 替换重复的字
+content = Pattern.compile("(.)\\1+").matcher(content).replaceAll("$1");
+
+System.out.println(content);  // 我要学java
+```
+
+
+
+### String类
+
+```java
+public String replaceAll(String regex, String replacement)
+
+public boolean matches(String regex) {
+        return Pattern.matches(regex, this);
+    }
+
+public String[] split(String regex)
 ```
 
